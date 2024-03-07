@@ -15,6 +15,10 @@ public partial class Player : CharacterBody2D
 	public Vector2 ScreenSize;
 	public Vector2 velocity = Vector2.Zero;
 	
+	[Export]
+	public double CoyoteTime {get; set;} = 0;
+	public const double CoyoteTimeMax = 0.5;
+	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -22,7 +26,12 @@ public partial class Player : CharacterBody2D
 		
 		JumpVelocity = ((2 * JumpHeight) / JumpTimeToPeak) * -1;
 		JumpGravity = ((-2 * JumpHeight) / (JumpTimeToPeak * JumpTimeToPeak)) * -1;
-		FallGravity = ((-2 * JumpHeight) / (JumpTimeToPeak * JumpTimeToPeak)) * -1;
+		FallGravity = ((-3 * JumpHeight) / (JumpTimeToPeak * JumpTimeToPeak)) * -1;
+		CoyoteTime = 0.3;
+		
+		GD.Print($"JumpVelocity {JumpVelocity}");
+		GD.Print($"JumpGravity {JumpGravity}");
+		GD.Print($"FallGravity {FallGravity}");
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -34,32 +43,7 @@ public partial class Player : CharacterBody2D
 	
 	public void Start(Vector2 position)
 	{
-		GD.Print("Player Start");
 		Position = position;
-	}
-	
-	private Vector2 GetPlayerMovement()
-	{
-		var velocity = Vector2.Zero;
-		
-		if (Input.IsActionPressed("move_right"))
-			velocity.X += 1;
-
-		if (Input.IsActionPressed("move_left"))
-			velocity.X -= 1;
-
-		if (Input.IsActionPressed("jump"))
-		{
-			velocity.Y -= 1;
-		} 
-		else if (!IsOnFloor()) {
-			velocity.Y += 1;
-		}
-			
-		if (Input.IsActionPressed("duck"))
-			velocity.Y += 1;
-			
-		return velocity;
 	}
 	
 	private void PhysicsProcess(double delta)
@@ -67,12 +51,25 @@ public partial class Player : CharacterBody2D
 		velocity.Y += GetGravity() * (float)delta;
 		velocity.X = GetInputVelocity() * Speed * (float)delta;
 		
-		if (Input.IsActionPressed("jump") && IsOnFloor())
+		if (Input.IsActionPressed("jump") && (IsOnFloor() || CoyoteTime > 0))
 			Jump();
 		
 		Velocity = velocity;
 		MoveAndSlide();
 		velocity = Velocity;
+		
+		if(IsOnFloor())
+		{
+			CoyoteTime = CoyoteTimeMax;
+		}
+		else
+		{
+			CoyoteTime -= delta;
+			if(CoyoteTime < 0)
+			{
+				CoyoteTime = 0;
+			}
+		}
 	}
 	
 	private float GetGravity()
@@ -82,6 +79,7 @@ public partial class Player : CharacterBody2D
 	
 	private void Jump()
 	{
+		CoyoteTime = 0;
 		velocity.Y = JumpVelocity;
 	}
 	

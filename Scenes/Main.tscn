@@ -115,3 +115,10 @@ offset_right = 74.0
 offset_bottom = 67.0
 text = "Y: 0
 "
+
+[node name="CoyoteTimeLabel" type="Label" parent="."]
+offset_left = 22.0
+offset_top = -5.0
+offset_right = 136.0
+offset_bottom = 18.0
+text = "Coyote Time: 0"
