@@ -1,5 +1,8 @@
+> Project made with GoDot 4.2
+
 # Jump
 GoDot: Exemple of 2D game with jump calculation
+
 
 The whole point of this project is the Jump calculation
 
